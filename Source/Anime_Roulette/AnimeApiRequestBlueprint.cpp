@@ -3,6 +3,7 @@
 #include "AnimeApiRequestBlueprint.h"
 #include "Http.h"
 #include "Json.h"
+#include <Anime_Roulette/ApiEventManager.h>
 
 FString UAnimeApiRequestBlueprint::Tags_URL = TEXT("https://api.jikan.moe/v4/genres/anime");
 TArray<FString> UAnimeApiRequestBlueprint::Tags;
@@ -45,12 +46,13 @@ void UAnimeApiRequestBlueprint::OnResponseReceived(FHttpRequestPtr Request, FHtt
 {
 	TArray<TSharedPtr<FJsonValue>> Results = ParseJsonString(Response->GetContentAsString());
 
-	UE_LOG(LogTemp, Log, TEXT("Wtf? Results: %i"), Results.Num());
-
 	for (int i = 0; i < Results.Num(); i++) {
 		FString TagName = Results[i]->AsObject()->GetStringField("name");
 		Tags.Add(TagName);
 	}
+
+	UApiEventManager* EventManager = UApiEventManager::GetInstance();
+	EventManager->OnTagsUpdated.Broadcast();
 }
 
 
