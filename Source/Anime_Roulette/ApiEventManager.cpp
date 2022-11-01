@@ -7,9 +7,10 @@ UApiEventManager* UApiEventManager::Instance;
 
 UApiEventManager::~UApiEventManager()
 {
+	UE_LOG(LogTemp, Log, TEXT("ApiEventManager Destroyed!"));
+
 	if (Instance == this)
 		Instance = NULL;
-	OnTagsUpdated.Clear();
 }
 
 UApiEventManager* UApiEventManager::GetInstance()
