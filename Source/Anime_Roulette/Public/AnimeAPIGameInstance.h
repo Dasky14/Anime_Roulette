@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
+#include "Engine/GameInstance.h"
 #include "Http.h"
 #include "Json.h"
-#include "AnimeApiRequestBlueprint.generated.h"
+#include "AnimeAPIGameInstance.generated.h"
+
+enum RequestType { Tags, Results };
 
 USTRUCT(BlueprintType)
 struct ANIME_ROULETTE_API FTagInfo
@@ -21,9 +23,9 @@ public:
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int Id;
+		int Id;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Name;
+		FString Name;
 };
 
 USTRUCT(BlueprintType)
@@ -38,11 +40,11 @@ public:
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int Id;
+		int Id;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Name;
+		FString Name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString ImageUrl;
+		FString ImageUrl;
 };
 
 USTRUCT(BlueprintType)
@@ -54,43 +56,61 @@ public:
 	FSearchParams() {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FTagInfo> IncludedTags;
+		TArray<FTagInfo> IncludedTags;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FTagInfo> ExcludedTags;
+		TArray<FTagInfo> ExcludedTags;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float MinScore;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float MaxScore;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Status;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Rating;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString OrderBy;
 };
 
+/**
+ * 
+ */
 UCLASS()
-class ANIME_ROULETTE_API UAnimeApiRequestBlueprint : public UBlueprintFunctionLibrary
+class ANIME_ROULETTE_API UAnimeAPIGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
+	UAnimeAPIGameInstance();
+
 public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Tags", CompactNodeTitle = "GetTags"), Category = "Anime API Requests")
-	static TArray<FTagInfo> GetTags();
+	TArray<FTagInfo> GetTags();
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Results", CompactNodeTitle = "GetResults"), Category = "Anime API Requests")
-	static TArray<FAnimeInfo> GetResults();
+	TArray<FAnimeInfo> GetResults();
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Ask Results", CompactNodeTitle = "AskResults"), Category = "Anime API Requests")
-	static bool AskResults(const FSearchParams& SearchParams);
+	bool AskResults(const FSearchParams& SearchParams);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Clear Tags", CompactNodeTitle = "ClearTags"), Category = "Anime API Requests")
-	static void ClearTags();
+	void ClearTags();
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Clear Results", CompactNodeTitle = "ClearResults"), Category = "Anime API Requests")
-	static void ClearResults();
+	void ClearResults();
 
 private:
-	static FString TagsURL;
-	static FString SearchURL;
-	static FString LastSearchURL;
-	static int PageCount;
-	static int CurrentPage;
-	static TArray<FTagInfo> Tags;
-	static TArray<FAnimeInfo> AnimeResults;
+	FString TagsURL;
+	FString SearchURL;
+	FString LastSearchURL;
+	int PageCount;
+	int CurrentPage;
+	double LastRateLimitReset;
+	TArray<FTagInfo> TagsList;
+	TArray<FAnimeInfo> AnimeResultsList;
+	AActor* WorldRefObject;
 
-	static void ParseJsonString(const FString& JsonResponse, TArray<TSharedPtr<FJsonValue>>& OutData, TArray<TSharedPtr<FJsonValue>>& OutPagination);
-	static void SendRequest(const FString& URL, void (*function)(FHttpRequestPtr, FHttpResponsePtr, bool));
-	static void OnTagsResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
-	static void OnResultsResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
+	void ParseJsonString(const FString& JsonResponse, TArray<TSharedPtr<FJsonValue>>& OutData, TSharedPtr<FJsonObject>& OutPagination);
+	void SendRequest(const FString& URL, const RequestType& Type);
+	void NextPageRequest();
+	void OnTagsResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
+	void OnResultsResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
 };
