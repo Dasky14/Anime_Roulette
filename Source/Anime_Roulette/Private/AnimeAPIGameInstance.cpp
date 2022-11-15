@@ -64,6 +64,16 @@ bool UAnimeAPIGameInstance::AskResults(const FSearchParams& SearchParams)
 		}
 	}
 
+	if (SearchParams.Status != "-") {
+		FinalURL.Append("&status=");
+		FinalURL.Append(SearchParams.Status);
+	}
+
+	if (SearchParams.Rating != "-") {
+		FinalURL.Append("&rating=");
+		FinalURL.Append(SearchParams.Rating);
+	}
+
 	LastSearchURL = FinalURL;
 
 	LastRateLimitReset = FPlatformTime::Seconds();
@@ -174,11 +184,21 @@ void UAnimeAPIGameInstance::OnResultsResponseReceived(FHttpRequestPtr Request, F
 	TSharedPtr<FJsonObject> Pagination;
 	ParseJsonString(Response->GetContentAsString(), Data, Pagination);
 
+	// Return if there are zero results
+	int Items = Pagination->GetObjectField("items")->GetIntegerField("total");
+	if (Items == 0) {
+		EventManager->OnProgressUpdated.Broadcast(0, 0);
+		EventManager->OnResultsUpdated.Broadcast();
+		return;
+	}
+
+	// Get pagination information
 	CurrentPage = Pagination->GetIntegerField("current_page");
 	PageCount = Pagination->GetIntegerField("last_visible_page");
 
 	UE_LOG(LogTemp, Log, TEXT("Pages: %i/%i"), CurrentPage, PageCount);
 
+	// Go through page anime information
 	for (int i = 0; i < Data.Num(); i++) {
 		FAnimeInfo newAnime;
 		newAnime.Id = Data[i]->AsObject()->GetIntegerField("mal_id");
@@ -187,10 +207,6 @@ void UAnimeAPIGameInstance::OnResultsResponseReceived(FHttpRequestPtr Request, F
 
 		AnimeResultsList.Add(newAnime);
 	}
-
-	FString LastPage = TEXT("?page=" + FString::FromInt(CurrentPage));
-	FString NextPage = TEXT("?page=" + FString::FromInt(CurrentPage + 1));
-	FString NextURL = LastSearchURL.Replace(*LastPage, *NextPage);
 
 	if (CurrentPage < PageCount) {
 		FTimerHandle TimerHandle;
