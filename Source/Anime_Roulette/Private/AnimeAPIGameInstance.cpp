@@ -179,8 +179,6 @@ void UAnimeAPIGameInstance::OnResultsResponseReceived(FHttpRequestPtr Request, F
 
 	UE_LOG(LogTemp, Log, TEXT("Pages: %i/%i"), CurrentPage, PageCount);
 
-	bool UpdateUI = false;
-
 	for (int i = 0; i < Data.Num(); i++) {
 		FAnimeInfo newAnime;
 		newAnime.Id = Data[i]->AsObject()->GetIntegerField("mal_id");
@@ -198,22 +196,13 @@ void UAnimeAPIGameInstance::OnResultsResponseReceived(FHttpRequestPtr Request, F
 		FTimerHandle TimerHandle;
 		FTimerDelegate TimerDelegate;
 		TimerDelegate.BindUObject(this, &UAnimeAPIGameInstance::NextPageRequest);
-		if (CurrentPage % 50 == 0) {
-			double WaitTime = FPlatformTime::Seconds() - LastRateLimitReset;
+		TheWorld->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 1.0f, false);
 
-			UE_LOG(LogTemp, Log, TEXT("Waiting for %i seconds."), WaitTime);
-			TheWorld->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, WaitTime, false);
-			LastRateLimitReset = FPlatformTime::Seconds();
-			UpdateUI = true;
-		}
-		else {
-			TheWorld->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 1.0f, false);
-		}
-	}
-	else {
-		UpdateUI = true;
+		EventManager->OnProgressUpdated.Broadcast(CurrentPage, PageCount);
 	}
 
-	if (UpdateUI)
+	if (CurrentPage >= PageCount) {
+		EventManager->OnProgressUpdated.Broadcast(CurrentPage, PageCount);
 		EventManager->OnResultsUpdated.Broadcast();
+	}
 }

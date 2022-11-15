@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEventDelegate_OnTagsUpdated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEventDelegate_OnResultsUpdated);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEventDelegate_OnProgressUpdated, int, CurrentPage, int, PageCount);
 
 /**
  * 
@@ -27,6 +28,8 @@ public:
 	FEventDelegate_OnTagsUpdated OnTagsUpdated;
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Anime API Events")
 	FEventDelegate_OnResultsUpdated OnResultsUpdated;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Anime API Events")
+	FEventDelegate_OnProgressUpdated OnProgressUpdated;
 
 private:
 	static UApiEventManager* Instance;
