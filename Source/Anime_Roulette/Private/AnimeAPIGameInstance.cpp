@@ -5,7 +5,9 @@
 #include "Http.h"
 #include "Json.h"
 #include "TimerManager.h"
+#include "Misc/DateTime.h"
 #include <Anime_Roulette/ApiEventManager.h>
+#include <random>
 
 UAnimeAPIGameInstance::UAnimeAPIGameInstance() {
 	TagsURL = TEXT("https://api.jikan.moe/v4/genres/anime");
@@ -28,6 +30,25 @@ TArray<FTagInfo> UAnimeAPIGameInstance::GetTags()
 TArray<FAnimeInfo> UAnimeAPIGameInstance::GetResults()
 {
 	return AnimeResultsList;
+}
+
+FAnimeInfo UAnimeAPIGameInstance::GetRandomResult()
+{
+	int seed = FDateTime::Now().GetMillisecond();
+
+	std::default_random_engine generator(seed);
+	std::uniform_int_distribution<int> distribution(0, AnimeResultsList.Num() - 1);
+
+	int randomNum = distribution(generator);
+	FAnimeInfo result = AnimeResultsList[randomNum];
+	UE_LOG(LogTemp, Log, TEXT("Random result %i: %s"), randomNum, *result.Name);
+
+	return result;
+}
+
+int UAnimeAPIGameInstance::GetResultCount()
+{
+	return AnimeResultsList.Num();
 }
 
 bool UAnimeAPIGameInstance::AskResults(const FSearchParams& SearchParams)

@@ -88,6 +88,12 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Results", CompactNodeTitle = "GetResults"), Category = "Anime API Requests")
 	TArray<FAnimeInfo> GetResults();
 
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Random Result", CompactNodeTitle = "GetRandomResult"), Category = "Anime API Requests")
+	FAnimeInfo GetRandomResult();
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Result Count", CompactNodeTitle = "GetResultCount"), Category = "Anime API Requests")
+	int GetResultCount();
+
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Ask Results", CompactNodeTitle = "AskResults"), Category = "Anime API Requests")
 	bool AskResults(const FSearchParams& SearchParams);
 
