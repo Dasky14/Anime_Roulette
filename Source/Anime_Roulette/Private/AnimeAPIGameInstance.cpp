@@ -239,6 +239,7 @@ void UAnimeAPIGameInstance::OnResultsResponseReceived(FHttpRequestPtr Request, F
 		newAnime.Status = Data[i]->AsObject()->GetStringField("status");
 		newAnime.EpisodeCount = Data[i]->AsObject()->GetIntegerField("episodes");
 		newAnime.Duration = Data[i]->AsObject()->GetStringField("duration");
+		newAnime.Synopsis = Data[i]->AsObject()->GetStringField("synopsis");
 
 		AnimeResultsList.Add(newAnime);
 	}

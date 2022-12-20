@@ -57,6 +57,8 @@ public:
 		int EpisodeCount;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString Duration;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Synopsis;
 };
 
 USTRUCT(BlueprintType)
