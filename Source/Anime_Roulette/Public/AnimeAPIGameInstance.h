@@ -45,6 +45,18 @@ public:
 		FString Name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString ImageUrl;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Type;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float Score;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Rating;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Status;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int EpisodeCount;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Duration;
 };
 
 USTRUCT(BlueprintType)
@@ -69,6 +81,8 @@ public:
 		FString Rating;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString OrderBy;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Sort;
 };
 
 /**

@@ -95,6 +95,14 @@ bool UAnimeAPIGameInstance::AskResults(const FSearchParams& SearchParams)
 		FinalURL.Append(SearchParams.Rating);
 	}
 
+	if (SearchParams.Sort != "-" && SearchParams.OrderBy != "-") {
+		FinalURL.Append("&sort=");
+		FinalURL.Append(SearchParams.Sort);
+
+		FinalURL.Append("&order_by=");
+		FinalURL.Append(SearchParams.OrderBy);
+	}
+
 	LastSearchURL = FinalURL;
 
 	LastRateLimitReset = FPlatformTime::Seconds();
@@ -225,6 +233,12 @@ void UAnimeAPIGameInstance::OnResultsResponseReceived(FHttpRequestPtr Request, F
 		newAnime.Id = Data[i]->AsObject()->GetIntegerField("mal_id");
 		newAnime.Name = Data[i]->AsObject()->GetStringField("title");
 		newAnime.ImageUrl = Data[i]->AsObject()->GetObjectField("images")->GetObjectField("jpg")->GetStringField("image_url");
+		newAnime.Type = Data[i]->AsObject()->GetStringField("type");
+		newAnime.Score = Data[i]->AsObject()->GetNumberField("score");
+		newAnime.Rating = Data[i]->AsObject()->GetStringField("rating");
+		newAnime.Status = Data[i]->AsObject()->GetStringField("status");
+		newAnime.EpisodeCount = Data[i]->AsObject()->GetIntegerField("episodes");
+		newAnime.Duration = Data[i]->AsObject()->GetStringField("duration");
 
 		AnimeResultsList.Add(newAnime);
 	}
