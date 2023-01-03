@@ -6,6 +6,8 @@
 #include "Json.h"
 #include "TimerManager.h"
 #include "Misc/DateTime.h"
+#include "Blueprint/UserWidget.h"
+#include "GameFramework/Actor.h"
 #include <Anime_Roulette/ApiEventManager.h>
 #include <random>
 
@@ -44,6 +46,24 @@ FAnimeInfo UAnimeAPIGameInstance::GetRandomResult()
 	UE_LOG(LogTemp, Log, TEXT("Random result %i: %s"), randomNum, *result.Name);
 
 	return result;
+}
+
+TArray<FAnimeInfo> UAnimeAPIGameInstance::GetSixRandomResults()
+{
+	int seed = FDateTime::Now().GetMillisecond();
+
+	std::default_random_engine generator(seed);
+	std::uniform_int_distribution<int> distribution(0, AnimeResultsList.Num() - 1);
+
+	TArray<FAnimeInfo> results = { };
+
+	for (int i = 0; i < 6; i++) {
+		int randomNum = distribution(generator);
+		results.Add(AnimeResultsList[randomNum]);
+		UE_LOG(LogTemp, Log, TEXT("Random result %i: %s"), randomNum, *results[i].Name);
+	}
+
+	return results;
 }
 
 int UAnimeAPIGameInstance::GetResultCount()
@@ -119,6 +139,26 @@ void UAnimeAPIGameInstance::ClearTags()
 void UAnimeAPIGameInstance::ClearResults()
 {
 	AnimeResultsList.Empty();
+}
+
+void UAnimeAPIGameInstance::SetSearchWidgetRef(UUserWidget* target)
+{
+	SearchWidget = target;
+}
+
+UUserWidget* UAnimeAPIGameInstance::GetSearchWidgetRef()
+{
+	return SearchWidget;
+}
+
+void UAnimeAPIGameInstance::SetDieRef(AActor* target)
+{
+	Die = target;
+}
+
+AActor* UAnimeAPIGameInstance::GetDieRef()
+{
+	return Die;
 }
 
 void UAnimeAPIGameInstance::ParseJsonString(const FString& JsonResponse, TArray<TSharedPtr<FJsonValue>>& OutData, TSharedPtr<FJsonObject>& OutPagination)

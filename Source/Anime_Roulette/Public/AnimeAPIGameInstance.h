@@ -6,6 +6,8 @@
 #include "Engine/GameInstance.h"
 #include "Http.h"
 #include "Json.h"
+#include "Blueprint/UserWidget.h"
+#include "GameFramework/Actor.h"
 #include "AnimeAPIGameInstance.generated.h"
 
 enum RequestType { Tags, Results };
@@ -107,6 +109,9 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Random Result", CompactNodeTitle = "GetRandomResult"), Category = "Anime API Requests")
 	FAnimeInfo GetRandomResult();
 
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Six Random Results", CompactNodeTitle = "GetSixRandomResults"), Category = "Anime API Requests")
+	TArray<FAnimeInfo> GetSixRandomResults();
+
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Result Count", CompactNodeTitle = "GetResultCount"), Category = "Anime API Requests")
 	int GetResultCount();
 
@@ -119,6 +124,18 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Clear Results", CompactNodeTitle = "ClearResults"), Category = "Anime API Requests")
 	void ClearResults();
 
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Set Search Widget Ref", CompactNodeTitle = "SetSearchWidgetRef"), Category = "Anime API Object Refs")
+	void SetSearchWidgetRef(UUserWidget* target);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Search Widget Ref", CompactNodeTitle = "GetSearchWidgetRef"), Category = "Anime API Object Refs")
+	UUserWidget* GetSearchWidgetRef();
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Set Die Ref", CompactNodeTitle = "SetDieRef"), Category = "Anime API Object Refs")
+	void SetDieRef(AActor* target);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Die Ref", CompactNodeTitle = "GetDieRef"), Category = "Anime API Object Refs")
+	AActor* GetDieRef();
+
 private:
 	FString TagsURL;
 	FString SearchURL;
@@ -129,6 +146,9 @@ private:
 	TArray<FTagInfo> TagsList;
 	TArray<FAnimeInfo> AnimeResultsList;
 	AActor* WorldRefObject;
+	UUserWidget* SearchWidget;
+	AActor* Die;
+
 
 	void ParseJsonString(const FString& JsonResponse, TArray<TSharedPtr<FJsonValue>>& OutData, TSharedPtr<FJsonObject>& OutPagination);
 	void SendRequest(const FString& URL, const RequestType& Type);
