@@ -50,20 +50,29 @@ FAnimeInfo UAnimeAPIGameInstance::GetRandomResult()
 
 TArray<FAnimeInfo> UAnimeAPIGameInstance::GetSixRandomResults()
 {
-	int seed = FDateTime::Now().GetMillisecond();
+	TArray<FAnimeInfo> Randomised = AnimeResultsList;
 
-	std::default_random_engine generator(seed);
-	std::uniform_int_distribution<int> distribution(0, AnimeResultsList.Num() - 1);
-
-	TArray<FAnimeInfo> results = { };
-
-	for (int i = 0; i < 6; i++) {
-		int randomNum = distribution(generator);
-		results.Add(AnimeResultsList[randomNum]);
-		UE_LOG(LogTemp, Log, TEXT("Random result %i: %s"), randomNum, *results[i].Name);
+	int32 LastIndex = Randomised.Num() - 1;
+	for (int i = 0; i <= LastIndex; i++) {
+		int32 SwapIndex = FMath::RandRange(i, LastIndex);
+		if (i != SwapIndex) {
+			Randomised.Swap(i, SwapIndex);
+		}
 	}
 
-	return results;
+	TArray<FAnimeInfo> Results = { };
+
+	int32 AddIndex = 0;
+	for (int i = 0; i < 6; i++) {
+		if (AddIndex == Randomised.Num()) {
+			AddIndex = 0;
+		}
+		Results.Add(Randomised[AddIndex]);
+		AddIndex++;
+		UE_LOG(LogTemp, Log, TEXT("Random result %i: %s"), i, *Results[i].Name);
+	}
+
+	return Results;
 }
 
 int UAnimeAPIGameInstance::GetResultCount()
