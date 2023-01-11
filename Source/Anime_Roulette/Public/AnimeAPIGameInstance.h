@@ -48,6 +48,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString ImageUrl;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString MalUrl;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString Type;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float Score;
@@ -76,6 +78,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<FTagInfo> ExcludedTags;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString NameContains;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MinScore;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MaxScore;
@@ -87,8 +91,10 @@ public:
 		FString OrderBy;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString Sort;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Type;
 };
-
+                                                                                                                                                                                                            
 /**
  * 
  */
@@ -140,6 +146,7 @@ private:
 	FString TagsURL;
 	FString SearchURL;
 	FString LastSearchURL;
+	FSearchParams LastSearchParams;
 	int PageCount;
 	int CurrentPage;
 	double LastRateLimitReset;

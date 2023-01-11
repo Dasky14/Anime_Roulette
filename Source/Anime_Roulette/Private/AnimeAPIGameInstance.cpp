@@ -15,6 +15,7 @@ UAnimeAPIGameInstance::UAnimeAPIGameInstance() {
 	TagsURL = TEXT("https://api.jikan.moe/v4/genres/anime");
 	SearchURL = TEXT("https://api.jikan.moe/v4/anime");
 	LastSearchURL = TEXT("");
+	LastSearchParams = FSearchParams();
 	PageCount = 1;
 	CurrentPage = 1;
 	LastRateLimitReset = 0;
@@ -82,6 +83,8 @@ int UAnimeAPIGameInstance::GetResultCount()
 
 bool UAnimeAPIGameInstance::AskResults(const FSearchParams& SearchParams)
 {
+	LastSearchParams = SearchParams;
+
 	FString FinalURL = SearchURL;
 
 	FinalURL.Append("?page=1");
@@ -278,10 +281,25 @@ void UAnimeAPIGameInstance::OnResultsResponseReceived(FHttpRequestPtr Request, F
 
 	// Go through page anime information
 	for (int i = 0; i < Data.Num(); i++) {
+
+		// Check filters not supported by API
+		FString TitleDefault = Data[i]->AsObject()->GetStringField("title");
+		FString TitleEnglish = Data[i]->AsObject()->GetStringField("title_english");
+		FString TitleJapanese = Data[i]->AsObject()->GetStringField("title_japanese");
+		if (LastSearchParams.NameContains != ""
+			&& !TitleDefault.Contains(LastSearchParams.NameContains, ESearchCase::Type::IgnoreCase)
+			&& !TitleEnglish.Contains(LastSearchParams.NameContains, ESearchCase::Type::IgnoreCase)
+			&& !TitleJapanese.Contains(LastSearchParams.NameContains, ESearchCase::Type::IgnoreCase))
+		{
+			continue;
+		}
+
+		// Set the anime results if it passes custom filters
 		FAnimeInfo newAnime;
 		newAnime.Id = Data[i]->AsObject()->GetIntegerField("mal_id");
 		newAnime.Name = Data[i]->AsObject()->GetStringField("title");
 		newAnime.ImageUrl = Data[i]->AsObject()->GetObjectField("images")->GetObjectField("jpg")->GetStringField("image_url");
+		newAnime.MalUrl = Data[i]->AsObject()->GetStringField("url");
 		newAnime.Type = Data[i]->AsObject()->GetStringField("type");
 		newAnime.Score = Data[i]->AsObject()->GetNumberField("score");
 		newAnime.Rating = Data[i]->AsObject()->GetStringField("rating");
