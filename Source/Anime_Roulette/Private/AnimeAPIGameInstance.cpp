@@ -283,6 +283,7 @@ void UAnimeAPIGameInstance::OnResultsResponseReceived(FHttpRequestPtr Request, F
 	for (int i = 0; i < Data.Num(); i++) {
 
 		// Check filters not supported by API
+		// Name matching
 		FString TitleDefault = Data[i]->AsObject()->GetStringField("title");
 		FString TitleEnglish = Data[i]->AsObject()->GetStringField("title_english");
 		FString TitleJapanese = Data[i]->AsObject()->GetStringField("title_japanese");
@@ -294,13 +295,28 @@ void UAnimeAPIGameInstance::OnResultsResponseReceived(FHttpRequestPtr Request, F
 			continue;
 		}
 
+		// Type matching
+		FString Type = Data[i]->AsObject()->GetStringField("type");
+		TArray<FString> SelectedTypes;
+		LastSearchParams.Type.ParseIntoArray(SelectedTypes, TEXT(","), true);
+		bool passed = false;
+		for (int t = 0; t < SelectedTypes.Num(); t++) {
+			if (Type == SelectedTypes[t]) {
+				passed = true;
+				break;
+			}
+		}
+		if (!passed)
+			continue;
+
+
 		// Set the anime results if it passes custom filters
 		FAnimeInfo newAnime;
 		newAnime.Id = Data[i]->AsObject()->GetIntegerField("mal_id");
-		newAnime.Name = Data[i]->AsObject()->GetStringField("title");
+		newAnime.Name = TitleDefault;
 		newAnime.ImageUrl = Data[i]->AsObject()->GetObjectField("images")->GetObjectField("jpg")->GetStringField("image_url");
 		newAnime.MalUrl = Data[i]->AsObject()->GetStringField("url");
-		newAnime.Type = Data[i]->AsObject()->GetStringField("type");
+		newAnime.Type = Type;
 		newAnime.Score = Data[i]->AsObject()->GetNumberField("score");
 		newAnime.Rating = Data[i]->AsObject()->GetStringField("rating");
 		newAnime.Status = Data[i]->AsObject()->GetStringField("status");
